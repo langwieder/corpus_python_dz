@@ -20,13 +20,12 @@ def load_page(url):
 def extract_news_links(page):
     links = []
     ahrefs = re.findall("<a.*href\=\"(.+?)\"", page)
-    for ahref in re.findall("<a.*href\=\"(.+?)\"", page):
+    for ahref in ahrefs:
         if ahref[0:6] == '/news/':
             link = BASE_URL + ahref
             links.append(link)
 
     return links
-
 
 dir_num = 0
 file_num = 0
