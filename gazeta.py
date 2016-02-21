@@ -131,21 +131,43 @@ def add_to_csv (path, author, header, topic, created, text, source, publ_year):
 def save_text_to_file(author, header, created, topic, source, text):
     year = created[6:]
     month = created[3:5]
-    dir_path = './' + year + '/' + month
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    path = dir_path + "/" + hashlib.md5(source.encode()).hexdigest() + '.txt'
+    dir = './' + year + '/' + month + '/'
+    text_dir = dir + 'text/'
+    xml_mystem_dir = dir + 'mystem_xml/'
+    text_mystem_dir = dir + 'mystem_text/'
+
+    if not os.path.exists(text_dir):
+        os.makedirs(text_dir)
+    if not os.path.exists(xml_mystem_dir):
+        os.makedirs(xml_mystem_dir)
+    if not os.path.exists(text_mystem_dir):
+        os.makedirs(text_mystem_dir)
+
+    filename = hashlib.md5(source.encode()).hexdigest() + '.txt'
+    text_path = text_dir + "/" + filename
+    xml_mystem_path = xml_mystem_dir + "/" + filename
+    text_mystem_path = text_mystem_dir + "/" + filename
+
     file_header = '@au ' + author + '\n'
     file_header = file_header + '@ti ' + header + '\n'
     file_header = file_header + '@da ' + created + '\n'
     file_header = file_header + '@topic ' + topic + '\n'
     file_header = file_header + '@url ' + source + '\n'
     file_text = file_header + text
-    f = open(path, 'w', encoding = 'utf-8')
+    f = open(text_path, 'w', encoding = 'utf-8')
     f.write(file_text)
-    return path
+    f.close()
+
+    # Путь к текущей директории
+    current_dir = os.getcwd() + "/"
+
+    # Выполняем mystem
+    os.system(current_dir + "mystem -d -l -i " + current_dir + text_path + " " + current_dir + text_mystem_path)
+    os.system(current_dir + "mystem -d -l -i --format xml " + current_dir + text_path + " " + current_dir + xml_mystem_path)
+
+    return text_path
 
 execute_url(BASE_URL)
 
-
-
+# save_text_to_file('Донцова', 'Крутое пике', "10.11.2014", "Роман", "http://mail.ru", "13 февраля в офисе Яндекса в Екатеринбурге пройдет встреча Android-разработчиков. В программе два доклада, а после — общение в неформальной обстановке. В этот раз мы решили сосредоточиться на реактивном программировании, поэтому оба доклада будут про RxJava. Поговорим о том, как реализовывать EventBus с помощью RxJava, об использовании Subjects и о проблемах применения RxJava в разработке под Android. Вход бесплатный, но необходимо зарегистрироваться и получить приглашение, так как количество мест ограничено. Регистрация закроется 12 февраля в 20:00." )
+#
