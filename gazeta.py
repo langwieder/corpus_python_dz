@@ -6,9 +6,9 @@ from lxml import etree
 from io import StringIO
 from lxml.html import parse
 from lxml.cssselect import CSSSelector
-
 from lxml import html
 from lxml.html.clean import clean_html
+import hashlib
 
 # Базовый URL сайта для парсинга
 BASE_URL = 'http://www.marpravda.ru'
@@ -54,6 +54,7 @@ def save_page(page):
     if file_num > 49:
         dir_num += 1
         file_num = 0
+    return
 
 # Функция для обработки страницы (загрузки, сохранения, извлечения ссылок)
 def execute_url(url):
@@ -124,11 +125,29 @@ def add_to_csv (path, author, header, topic, created, text, source, publ_year):
     str = path + "|" + author + "|||" + header + "|" + created + "|публицистика|||"+topic+"||нейтральный|н-возраст|н-уровень|республиканская|"+source+"|Марийская правда||"+ publ_year+" |газета|Россия|Марий Эл|ru\n"
     f = open('test.csv', 'a+',encoding = 'utf-8')
     f.write(str)
+
+
+# Функция, которая сохранит текст и файл
+def save_text_to_file(author, header, created, topic, source, text):
+    year = created[6:]
+    month = created[3:5]
+    dir_path = './' + year + '/' + month
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    path = dir_path + "/" + hashlib.md5(source.encode()).hexdigest() + '.txt'
+    file_header = '@au ' + author + '\n'
+    file_header = file_header + '@ti ' + header + '\n'
+    file_header = file_header + '@da ' + created + '\n'
+    file_header = file_header + '@topic ' + topic + '\n'
+    file_header = file_header + '@url ' + source + '\n'
+    file_text = file_header + text
+    f = open(path, 'w', encoding = 'utf-8')
+    f.write(file_text)
+    return path
+
 execute_url(BASE_URL)
 
-
-
-
+# https://dl.dropboxusercontent.com/u/21601500 /mar_pravda
 
 
 # path -- это путь к файлу со статьёй,
