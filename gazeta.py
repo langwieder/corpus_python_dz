@@ -117,9 +117,9 @@ def parse_url_and_save(url):
     text = news_detail.find("article")
     text = clean_html(text).text_content()
 
-    add_to_csv('m', author, header, topic, created, text, source, publ_year)
+    path = save_text_to_file(author, header, created, topic, source, text)
+    add_to_csv(path, author, header, topic, created, text, source, publ_year)
 
-    # print("Coхраняем статью: " + created + "; " + author + "; " + topic)
 
 def add_to_csv (path, author, header, topic, created, text, source, publ_year):
     str = path + "|" + author + "|||" + header + "|" + created + "|публицистика|||"+topic+"||нейтральный|н-возраст|н-уровень|республиканская|"+source+"|Марийская правда||"+ publ_year+" |газета|Россия|Марий Эл|ru\n"
@@ -146,34 +146,6 @@ def save_text_to_file(author, header, created, topic, source, text):
     return path
 
 execute_url(BASE_URL)
-
-# https://dl.dropboxusercontent.com/u/21601500 /mar_pravda
-
-
-# path -- это путь к файлу со статьёй,
-# author -- имя автора, если его можно достать со страницы (и вообще если оно есть),
-# sex -- поле оставить пустым,
-# birthday -- оставить пустым
-# header -- название статьи
-# created -- дата в формате 07.01.2012 (день.месяц.год)
-# sphere -- слово "публицистика"
-# genre_fi -- оставить пустым
-# type -- оставить пустым
-# topic -- категория, если мы её можем найти на странице со статьёй
-# chronotop -- оставить пустым
-# style -- слово "нейтральный"
-# audience_age -- слово "н-возраст"
-# audience_level -- слово "н-уровень"
-# audience_size -- "районная", если газета районная, "республиканская", если газета республиканская, "городская" -- если городская.
-# source -- URL, откуда статья была скачана
-# publication -- название газеты
-# publisher -- оставить пустой
-# publ_year -- год публикации
-# medium -- слово "газета"
-# country -- слово "Россия"
-# region -- Название региона, откуда ваша газета
-# language -- слово "ru"
-
 
 
 
