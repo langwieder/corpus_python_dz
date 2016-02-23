@@ -12,13 +12,12 @@ BASE_URL = 'http://www.marpravda.ru'
 links_dic = {}
 
 
-# Загрузка страницы из интернета
+# Загрузка страницы из интернета, попытаться загрузить по url, в случае ошибки возвращается none
 def load_page(url):
     try:
         con = urllib.request.urlopen(url)
     except:
         return None
-
     page = con.read()
     page = page.decode()
     return page
@@ -37,10 +36,11 @@ def extract_news_links(page):
 
 
 # Функция для обработки страницы (загрузки, сохранения, извлечения ссылок)
+
 def execute_url(url):
+    # проверяем, не обрабатывали ли ранее эту ссылку
     if url in links_dic.keys():
         return
-
     links_dic[url] = 1
 
     print(url)
@@ -60,7 +60,7 @@ def parse_url_and_save(url):
     try:
         html_document = parse(url).getroot()
     except:
-        print("не удалось загрузить url или распарсиь документ")
+        print("не удалось загрузить url или распарсить документ")
         return
 
     page_contents = html_document.find_class("page_content")
@@ -111,7 +111,7 @@ def parse_url_and_save(url):
     text = clean_html(text).text_content()
     text = text.strip(' \t\n\r')
 
-
+    # Сохраняем извлеченную инфу в файл, добавляем в csv
     path = save_text_to_file(author, header, created, topic, source, text)
     add_to_csv(path, author, header, topic, created, source, publ_year)
 
@@ -127,31 +127,35 @@ words_count = 0
 
 # Функция, которая сохранит текст и файл
 def save_text_to_file(author, header, created, topic, source, text):
+    # Чтобы записать значение в переменную за пределами функции
     global words_count
 
+    # Считаем количество слов
     words = re.findall(r'\w+', text)
     words_count += len(words)
     print("Количество слов: " + str(words_count))
 
     year = created[6:]
     month = created[3:5]
+    # Путь, куда сохраняем файлы 3 видов: текстовый, xml-mystem и text-mystem
     directory = './' + year + '/' + month + '/'
     text_dir = directory + 'text/'
     xml_mystem_dir = directory + 'mystem_xml/'
     text_mystem_dir = directory + 'mystem_text/'
-
+    # Создаем папки для файлов
     if not os.path.exists(text_dir):
         os.makedirs(text_dir)
     if not os.path.exists(xml_mystem_dir):
         os.makedirs(xml_mystem_dir)
     if not os.path.exists(text_mystem_dir):
         os.makedirs(text_mystem_dir)
-
+    # Генерируем имя файла
     filename = hashlib.md5(source.encode()).hexdigest()
+    # Полные пути к файлам
     text_path = text_dir + filename + ".txt"
     xml_mystem_path = xml_mystem_dir + filename + ".xml"
     text_mystem_path = text_mystem_dir + filename + ".txt"
-
+    # Добавление информации в шапку текста
     file_header = '@au ' + author + '\n'
     file_header = file_header + '@ti ' + header + '\n'
     file_header = file_header + '@da ' + created + '\n'
@@ -162,7 +166,7 @@ def save_text_to_file(author, header, created, topic, source, text):
     f.write(file_text)
     f.close()
 
-    # Путь к текущей директории
+    # Путь к текущей директории для mystem
     current_dir = os.getcwd() + "/"
 
     # Выполняем mystem
