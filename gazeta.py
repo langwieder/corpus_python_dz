@@ -14,7 +14,11 @@ links_dic = {}
 
 # Загрузка страницы из интернета
 def load_page(url):
-    con = urllib.request.urlopen(url)
+    try:
+        con = urllib.request.urlopen(url)
+    except:
+        return None
+
     page = con.read()
     page = page.decode()
     return page
@@ -44,6 +48,9 @@ def execute_url(url):
     parse_url_and_save(url)
 
     page = load_page(url)
+    if page is None:
+        return
+
     links = extract_news_links(page)
     for link in links:
         execute_url(link)
@@ -53,6 +60,7 @@ def parse_url_and_save(url):
     try:
         html_document = parse(url).getroot()
     except:
+        print("не удалось загрузить url или распарсиь документ")
         return
 
     page_contents = html_document.find_class("page_content")
